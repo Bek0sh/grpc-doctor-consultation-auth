@@ -1,0 +1,44 @@
+syntax="proto3";
+
+package proto;
+
+option go_package = "./pkg/proto";
+
+// import "google/api/annotations.proto";
+
+service AuthUser {
+    rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {
+        // option (google.api.http) = {
+        //     post: "v1/register"
+        //     body: "*"
+        // };
+    }
+
+    rpc SignInUser(SignInRequest) returns (SignInResponse) {
+        // option (google.api.http) = {
+        //     post: "v1/sign-in"
+        //     body: "*"
+        // };
+    }
+}
+
+message RegisterUserRequest {
+    string name = 1;
+    string surname = 2;
+    string phoneNumber = 3;
+    string password = 4;
+    string confirmPassword = 5;
+}
+
+message RegisterUserResponse {
+    int32 id = 1;
+}
+
+message SignInRequest {
+    string phoneNumber = 1;
+    string password = 2;
+}
+
+message SignInResponse {
+    string access_token = 1;
+}
