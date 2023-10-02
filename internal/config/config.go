@@ -20,6 +20,10 @@ type Config struct {
 		DbPort     string `yaml:"db_port"`
 		DbName     string `yaml:"db_name"`
 	} `yaml:"postgre"`
+	JWT struct {
+		AccessTokenDuration string `yaml:"access_token_duration"`
+		SecretPassword      string `yaml:"secret_password"`
+	} `yaml:"jwt"`
 }
 
 var instance *Config
@@ -30,7 +34,7 @@ func GetConfig() *Config {
 		func() {
 			logrus.Info("Getting yaml configurations")
 			instance = &Config{}
-			if err := cleanenv.ReadConfig("config.yaml", instance); err != nil {
+			if err := cleanenv.ReadConfig("C:/Users/bekar/VScodeProjects/online-market/auth/config.yaml", instance); err != nil {
 				logrus.Fatal(err)
 			}
 		},

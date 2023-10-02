@@ -5,10 +5,16 @@ is_debug: true
 listen:
   type: port
   bind_id: 0.0.0.0
-  port: 8080
+  port: :8080
 
 postgre:
   db_username: postgres
   db_password: 1234
   db_port: 5432
-  db_name: online-market-auth
+  db_name: online_market_auth
+
+jwt:
+  access_token_duration: 20
+  secret_password: abcdefghijklmnopqrstuvwxyzHELLO123456789
+
+  

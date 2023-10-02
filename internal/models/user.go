@@ -4,18 +4,27 @@ import "github.com/Bek0sh/online-market-auth/pkg/proto"
 
 type User struct {
 	Id          int
-	Name        string
 	Username    string
+	Surname     string
 	PhoneNumber string
+	UserType    string
 	Password    string
 }
 
+type UserResponse struct {
+	Id          int    `json:"id"`
+	Username    string `json:"username"`
+	Surname     string `json:"surname"`
+	UserType    string `json:"user_type"`
+	PhoneNumber string `json:"phone_number"`
+}
+
 type RegisterUser struct {
-	Username        string
-	Surname         string
-	PhoneNumber     string
-	Password        string
-	ConfirmPassword string
+	Username        string `json:"username"`
+	Surname         string `json:"surname"`
+	PhoneNumber     string `json:"phone_number"`
+	Password        string `json:"password"`
+	ConfirmPassword string `json:"confirm_passsword"`
 }
 
 func (r *RegisterUser) ToProto() *proto.RegisterUserRequest {
@@ -29,8 +38,8 @@ func (r *RegisterUser) ToProto() *proto.RegisterUserRequest {
 }
 
 type SignInUser struct {
-	PhoneNumber string
-	Password    string
+	PhoneNumber string `json:"phone_number"`
+	Password    string `json:"password"`
 }
 
 func (s *SignInUser) ToProto() *proto.SignInRequest {

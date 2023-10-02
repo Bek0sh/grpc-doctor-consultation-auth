@@ -6,11 +6,13 @@ import (
 
 	"github.com/Bek0sh/online-market-auth/internal/config"
 	"github.com/sirupsen/logrus"
+
+	_ "github.com/lib/pq"
 )
 
 var database *sql.DB
 
-func Connect(cfg config.Config) {
+func Connect(cfg *config.Config) {
 	conn := fmt.Sprintf("postgres://%s:%s@localhost:%s/%s?sslmode=disable",
 		cfg.Postgre.DbUsername,
 		cfg.Postgre.DbPassword,
