@@ -32,16 +32,22 @@ func NewService(repo Repository, cfg *config.Config, jwt token.Maker) proto.Auth
 	return &service{repo: repo, cfg: cfg, jwt: jwt}
 }
 
-func (s *service) RegisterUser(ctx context.Context, userInput *proto.RegisterUserRequest) (*proto.RegisterUserResponse, error) {
-	hashedPassword, err := utils.HashPassword(userInput.GetPassword())
+func (s *service) RegisterUser(ctx context.Context, req *proto.RegisterUserRequest) (*proto.RegisterUserResponse, error) {
+
+	violations := validateRegisterUser(req)
+	if violations != nil {
+		return nil, InvalidArgumentError(violations)
+	}
+
+	hashedPassword, err := utils.HashPassword(req.GetPassword())
 	if err != nil {
 		logrus.Error("Failed to hash password, error: ", err)
 		return nil, err
 	}
 	createUser := &models.RegisterUser{
-		Username:    userInput.GetName(),
-		Surname:     userInput.GetSurname(),
-		PhoneNumber: userInput.GetPhoneNumber(),
+		Username:    req.GetName(),
+		Surname:     req.GetSurname(),
+		PhoneNumber: req.GetPhoneNumber(),
 		Password:    hashedPassword,
 	}
 
@@ -58,14 +64,14 @@ func (s *service) RegisterUser(ctx context.Context, userInput *proto.RegisterUse
 	return response, err
 }
 
-func (s *service) SignInUser(ctx context.Context, userInput *proto.SignInRequest) (*proto.SignInResponse, error) {
-	user, err := s.repo.GetUserByPhoneNumber(userInput.GetPhoneNumber())
+func (s *service) SignInUser(ctx context.Context, req *proto.SignInRequest) (*proto.SignInResponse, error) {
+	user, err := s.repo.GetUserByPhoneNumber(req.GetPhoneNumber())
 	if err != nil {
-		logrus.Errorf("failed to find user with phone-number=%s, error: %v", userInput.GetPhoneNumber(), err)
+		logrus.Errorf("failed to find user with phone-number=%s, error: %v", req.GetPhoneNumber(), err)
 		return nil, err
 	}
 
-	if err = utils.ComparePassword(userInput.GetPassword(), user.Password); err != nil {
+	if err = utils.ComparePassword(req.GetPassword(), user.Password); err != nil {
 		logrus.Error("password is not correct, check it please, error: ", err)
 		return nil, err
 	}
