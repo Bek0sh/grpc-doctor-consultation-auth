@@ -2,16 +2,19 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/Bek0sh/online-market-auth/internal/config"
+	"github.com/Bek0sh/online-market-auth/internal/handler"
 	"github.com/Bek0sh/online-market-auth/internal/models"
-	"github.com/Bek0sh/online-market-auth/pkg/proto"
 	"github.com/Bek0sh/online-market-auth/pkg/token"
 	"github.com/Bek0sh/online-market-auth/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
+
+// var currentUser models.UserResponse
 
 type Repository interface {
 	CreateUser(*models.RegisterUser) (int, error)
@@ -25,64 +28,87 @@ type service struct {
 	cfg  *config.Config
 	repo Repository
 	jwt  token.Maker
-	proto.UnimplementedAuthUserServer
 }
 
-func NewService(repo Repository, cfg *config.Config, jwt token.Maker) proto.AuthUserServer {
+func NewService(repo Repository, cfg *config.Config, jwt token.Maker) handler.Service {
 	return &service{repo: repo, cfg: cfg, jwt: jwt}
 }
 
-func (s *service) RegisterUser(ctx context.Context, req *proto.RegisterUserRequest) (*proto.RegisterUserResponse, error) {
+func (s *service) RegisterUser(ctx context.Context, req *models.RegisterUser) (int, error) {
 
 	violations := validateRegisterUser(req)
 	if violations != nil {
-		return nil, InvalidArgumentError(violations)
+		return 0, fmt.Errorf("some of input is wrong, check it please")
 	}
 
-	hashedPassword, err := utils.HashPassword(req.GetPassword())
+	if req.Password != req.ConfirmPassword {
+		logrus.Error("passwords do not match")
+		return 0, fmt.Errorf("both of passwords must be equal and same, check them")
+	}
+
+	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		logrus.Error("Failed to hash password, error: ", err)
-		return nil, err
+		return 0, err
 	}
+
 	createUser := &models.RegisterUser{
-		Username:    req.GetName(),
-		Surname:     req.GetSurname(),
-		PhoneNumber: req.GetPhoneNumber(),
+		Username:    req.Username,
+		Surname:     req.Surname,
+		PhoneNumber: req.PhoneNumber,
+		CreatedAt:   req.CreatedAt,
+		UserRole:    req.UserRole,
 		Password:    hashedPassword,
 	}
 
 	id, err := s.repo.CreateUser(createUser)
 	if err != nil {
 		logrus.Error("failed to create user in service layer, error: ", err)
-		return nil, err
+		return 0, err
 	}
 
-	response := &proto.RegisterUserResponse{
-		Id: int32(id),
-	}
-
-	return response, err
+	return id, err
 }
 
-func (s *service) SignInUser(ctx context.Context, req *proto.SignInRequest) (*proto.SignInResponse, error) {
-	user, err := s.repo.GetUserByPhoneNumber(req.GetPhoneNumber())
-	if err != nil {
-		logrus.Errorf("failed to find user with phone-number=%s, error: %v", req.GetPhoneNumber(), err)
-		return nil, err
+func (s *service) SignInUser(ctx context.Context, req *models.SignInUser) (string, error) {
+
+	violations := validateSignInUser(req)
+	if violations != nil {
+		return "", fmt.Errorf("some of input is wrong, check it please")
 	}
 
-	if err = utils.ComparePassword(req.GetPassword(), user.Password); err != nil {
+	user, err := s.repo.GetUserByPhoneNumber(req.PhoneNumber)
+	if err != nil {
+		logrus.Errorf("failed to find user with phone-number=%s, error: %v", req.PhoneNumber, err)
+		return "", err
+	}
+
+	if err = utils.ComparePassword(req.Password, user.Password); err != nil {
 		logrus.Error("password is not correct, check it please, error: ", err)
-		return nil, err
+		return "", err
 	}
 
 	dur, _ := strconv.Atoi(s.cfg.JWT.AccessTokenDuration)
 
-	access_token, err := s.jwt.CreateToken(user.Id, user.Username, time.Duration(time.Duration(dur).Minutes()))
+	access_token, err := s.jwt.CreateToken(user.Id, user.Username, user.UserRole, time.Duration(dur*int(time.Minute)))
+
 	if err != nil {
 		logrus.Error("failed to create access_token, error: ", err)
-		return nil, err
+		return "", err
 	}
 
-	return &proto.SignInResponse{AccessToken: access_token}, nil
+	// currentUser = models.UserResponse{
+	// 	Id:          user.Id,
+	// 	Username:    user.Username,
+	// 	Surname:     user.Surname,
+	// 	PhoneNumber: user.PhoneNumber,
+	// 	CreatedAt:   user.CreatedAt,
+	// 	UserRole:    user.UserRole,
+	// }
+
+	return access_token, nil
+}
+
+func (s *service) GetProfile(ctx context.Context, id int) (*models.UserResponse, error) {
+	return s.repo.GetUserById(id)
 }

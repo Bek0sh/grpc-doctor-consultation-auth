@@ -16,7 +16,7 @@ func TestJwtToken(t *testing.T) {
 	duration := 1 * time.Minute
 	// exp := issAt.Add(duration)
 
-	tok, err := maker.CreateToken(2, "hello", duration)
+	tok, err := maker.CreateToken(2, "hello", "user", duration)
 
 	require.NoError(t, err)
 	require.NotEmpty(t, tok)
@@ -36,7 +36,7 @@ func TestExpiredToken(t *testing.T) {
 
 	dur := 10 * time.Second
 
-	tok, err := maker.CreateToken(1, "123", dur)
+	tok, err := maker.CreateToken(1, "123", "user", dur)
 	require.NoError(t, err)
 
 	time.Sleep(15 * time.Second)

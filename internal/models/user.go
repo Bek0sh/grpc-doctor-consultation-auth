@@ -1,50 +1,37 @@
 package models
 
-import "github.com/Bek0sh/online-market-auth/pkg/proto"
+import "time"
 
 type User struct {
 	Id          int
 	Username    string
 	Surname     string
 	PhoneNumber string
-	UserType    string
+	UserRole    string
 	Password    string
+	CreatedAt   time.Time
 }
 
 type UserResponse struct {
-	Id          int    `json:"id"`
+	Id          int    `json:"-"`
 	Username    string `json:"username"`
 	Surname     string `json:"surname"`
-	UserType    string `json:"user_type"`
+	UserRole    string `json:"user_role"`
 	PhoneNumber string `json:"phone_number"`
+	CreatedAt   time.Time
 }
 
 type RegisterUser struct {
-	Username        string `json:"username"`
-	Surname         string `json:"surname"`
-	PhoneNumber     string `json:"phone_number"`
-	Password        string `json:"password"`
-	ConfirmPassword string `json:"confirm_passsword"`
-}
-
-func (r *RegisterUser) ToProto() *proto.RegisterUserRequest {
-	return &proto.RegisterUserRequest{
-		Name:            r.Username,
-		Surname:         r.Surname,
-		PhoneNumber:     r.PhoneNumber,
-		Password:        r.Password,
-		ConfirmPassword: r.ConfirmPassword,
-	}
+	Username        string    `json:"username"`
+	Surname         string    `json:"surname"`
+	PhoneNumber     string    `json:"phone_number"`
+	Password        string    `json:"password"`
+	CreatedAt       time.Time `json:"created_at"`
+	UserRole        string    `json:"user_role"`
+	ConfirmPassword string    `json:"confirm_password"`
 }
 
 type SignInUser struct {
 	PhoneNumber string `json:"phone_number"`
 	Password    string `json:"password"`
-}
-
-func (s *SignInUser) ToProto() *proto.SignInRequest {
-	return &proto.SignInRequest{
-		PhoneNumber: s.PhoneNumber,
-		Password:    s.Password,
-	}
 }

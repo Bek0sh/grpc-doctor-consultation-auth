@@ -21,22 +21,68 @@ service AuthUser {
         };
     }
 
+    rpc GetProfile(ProfileRequest) returns (ProfileResponse) {
+        option (google.api.http) = {
+            get: "/v1/profile"
+        };
+    }
+    
+    rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
+        option (google.api.http) = {
+            get: "/v1/update-profile"
+        };
+    }
 }
+
+message User {
+    int32 id = 1;
+    string name = 2;
+    string surname = 3;
+    string phone_number = 4;
+    string user_type = 5;
+}
+
+
+
+
+message UpdateProfileResponse {
+    User user = 1;
+}
+
+message UpdateProfileRequest {
+    string name = 1;
+    optional string surname = 2;
+}
+
+
+
+
+message ProfileRequest {}
+
+message ProfileResponse {
+    User user = 1;
+}
+
+
+
 
 message RegisterUserRequest {
     string name = 1;
     string surname = 2;
-    string phoneNumber = 3;
+    string phone_number = 3;
     string password = 4;
-    string confirmPassword = 5;
+    string confirm_password = 5;
 }
 
 message RegisterUserResponse {
     int32 id = 1;
 }
 
+
+
+
 message SignInRequest {
-    string phoneNumber = 1;
+    string phone_number = 1;
     string password = 2;
 }
 

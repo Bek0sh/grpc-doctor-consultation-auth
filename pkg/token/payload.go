@@ -12,17 +12,19 @@ var (
 type Payload struct {
 	Id        int
 	Username  string
+	UserRole  string
 	IssuedAt  time.Time
 	ExpiresAt time.Time
 }
 
-func NewPayload(id int, name string, dur time.Duration) *Payload {
+func NewPayload(id int, name string, role string, dur time.Duration) *Payload {
 	now := time.Now()
 	exp := time.Now().Add(dur)
 
 	payload := &Payload{
 		Id:        id,
 		Username:  name,
+		UserRole:  role,
 		IssuedAt:  now,
 		ExpiresAt: exp,
 	}
