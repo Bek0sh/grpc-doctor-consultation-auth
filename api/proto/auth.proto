@@ -4,88 +4,24 @@ package proto;
 
 option go_package = "./pkg/proto";
 
-import "google/api/annotations.proto";
-
-service AuthUser {
-    rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {
-        option (google.api.http) = {
-            post: "/v1/register"
-            body: "*"
-        };
-    }
-
-    rpc SignInUser(SignInRequest) returns (SignInResponse) {
-        option (google.api.http) = {
-            post: "/v1/sign-in"
-            body: "*"
-        };
-    }
-
-    rpc GetProfile(ProfileRequest) returns (ProfileResponse) {
-        option (google.api.http) = {
-            get: "/v1/profile"
-        };
-    }
-    
-    rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
-        option (google.api.http) = {
-            get: "/v1/update-profile"
-        };
-    }
+service UserInfo {
+    rpc GetCurrentUser(Empty) returns (GetUserResponse);
+    rpc CheckToken(Empty) returns (Empty);
+    rpc CheckRole(Empty) returns (Empty);
+    rpc GetUserById(GetUserByIdRequest) returns (GetUserResponse);
 }
 
-message User {
+message GetUserByIdRequest {
+    int32 id = 1;
+}
+
+message Empty {}
+
+message GetUserResponse {
     int32 id = 1;
     string name = 2;
     string surname = 3;
     string phone_number = 4;
-    string user_type = 5;
-}
-
-
-
-
-message UpdateProfileResponse {
-    User user = 1;
-}
-
-message UpdateProfileRequest {
-    string name = 1;
-    optional string surname = 2;
-}
-
-
-
-
-message ProfileRequest {}
-
-message ProfileResponse {
-    User user = 1;
-}
-
-
-
-
-message RegisterUserRequest {
-    string name = 1;
-    string surname = 2;
-    string phone_number = 3;
-    string password = 4;
-    string confirm_password = 5;
-}
-
-message RegisterUserResponse {
-    int32 id = 1;
-}
-
-
-
-
-message SignInRequest {
-    string phone_number = 1;
-    string password = 2;
-}
-
-message SignInResponse {
-    string access_token = 1;
+    string user_role = 5;
+    string created_at = 6;
 }

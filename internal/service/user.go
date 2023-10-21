@@ -38,7 +38,7 @@ func (s *service) RegisterUser(ctx context.Context, req *models.RegisterUser) (i
 
 	violations := validateRegisterUser(req)
 	if violations != nil {
-		return 0, fmt.Errorf("some of input is wrong, check it please")
+		return 0, InvalidArgumentError(violations)
 	}
 
 	if req.Password != req.ConfirmPassword {
@@ -70,11 +70,13 @@ func (s *service) RegisterUser(ctx context.Context, req *models.RegisterUser) (i
 	return id, err
 }
 
+var access_token string
+
 func (s *service) SignInUser(ctx context.Context, req *models.SignInUser) (string, error) {
 
 	violations := validateSignInUser(req)
 	if violations != nil {
-		return "", fmt.Errorf("some of input is wrong, check it please")
+		return "", InvalidArgumentError(violations)
 	}
 
 	user, err := s.repo.GetUserByPhoneNumber(req.PhoneNumber)
@@ -90,25 +92,20 @@ func (s *service) SignInUser(ctx context.Context, req *models.SignInUser) (strin
 
 	dur, _ := strconv.Atoi(s.cfg.JWT.AccessTokenDuration)
 
-	access_token, err := s.jwt.CreateToken(user.Id, user.Username, user.UserRole, time.Duration(dur*int(time.Minute)))
+	access_token, err = s.jwt.CreateToken(user.Id, user.Username, user.UserRole, time.Duration(dur*int(time.Minute)))
 
 	if err != nil {
 		logrus.Error("failed to create access_token, error: ", err)
 		return "", err
 	}
 
-	// currentUser = models.UserResponse{
-	// 	Id:          user.Id,
-	// 	Username:    user.Username,
-	// 	Surname:     user.Surname,
-	// 	PhoneNumber: user.PhoneNumber,
-	// 	CreatedAt:   user.CreatedAt,
-	// 	UserRole:    user.UserRole,
-	// }
-
 	return access_token, nil
 }
 
 func (s *service) GetProfile(ctx context.Context, id int) (*models.UserResponse, error) {
 	return s.repo.GetUserById(id)
+}
+
+func (s *service) GetToken() string {
+	return access_token
 }

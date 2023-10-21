@@ -105,13 +105,16 @@ func (h *Handler) SignIn() gin.HandlerFunc {
 	}
 }
 
+var userId int
+
 func (h *Handler) Profile() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 		id := c.MustGet("user_id")
 
-		user, err := h.service.GetProfile(ctx, id.(int))
+		userId = id.(int)
+		user, err := h.service.GetProfile(ctx, userId)
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,

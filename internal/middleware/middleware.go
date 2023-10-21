@@ -68,5 +68,7 @@ func CheckRole() gin.HandlerFunc {
 			)
 			return
 		}
+
+		c.Next()
 	}
 }
