@@ -8,6 +8,7 @@ type User struct {
 	Surname     string
 	PhoneNumber string
 	UserRole    string
+	Email       string
 	Password    string
 	CreatedAt   time.Time
 }
@@ -17,6 +18,7 @@ type UserResponse struct {
 	Username    string `json:"username"`
 	Surname     string `json:"surname"`
 	UserRole    string `json:"user_role"`
+	Email       string `json:"email"`
 	PhoneNumber string `json:"phone_number"`
 	CreatedAt   time.Time
 }
@@ -27,6 +29,7 @@ type RegisterUser struct {
 	PhoneNumber     string    `json:"phone_number"`
 	Password        string    `json:"password"`
 	CreatedAt       time.Time `json:"created_at"`
+	Email           string    `json:"email"`
 	UserRole        string    `json:"user_role"`
 	ConfirmPassword string    `json:"confirm_password"`
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Bek0sh/online-market-auth/internal/models"
@@ -54,6 +55,7 @@ func modelToProto(user *models.UserResponse, id int) *proto.GetUserResponse {
 		Surname:     user.Surname,
 		PhoneNumber: user.PhoneNumber,
 		UserRole:    user.UserRole,
+		Email:       user.Email,
 		CreatedAt:   protobufTimeString,
 	}
 	return resp
@@ -73,7 +75,7 @@ func (g *GrpcService) CheckRole(context.Context, *proto.Empty) (*proto.Empty, er
 		return nil, err
 	}
 
-	if payload.UserRole != "DOCTOR" {
+	if strings.ToLower(payload.UserRole) != "doctor" {
 		return nil, fmt.Errorf("this action only for doctors, access denied")
 	}
 

@@ -19,8 +19,8 @@ func NewRepository(db *sql.DB) service.Repository {
 func (r *repo) CreateUser(userInput *models.RegisterUser) (int, error) {
 	var id int
 
-	query := "INSERT INTO users (name, surname, phone_number,user_role, created_at ,hashed_password) VALUES($1, $2, $3, $4, $5, $6) RETURNING id"
-	err := r.db.QueryRow(query, userInput.Username, userInput.Surname, userInput.PhoneNumber, userInput.UserRole, userInput.CreatedAt, userInput.Password).Scan(&id)
+	query := "INSERT INTO users (name, surname, phone_number,user_role, email, created_at, hashed_password) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id"
+	err := r.db.QueryRow(query, userInput.Username, userInput.Surname, userInput.PhoneNumber, userInput.UserRole, userInput.Email, userInput.CreatedAt, userInput.Password).Scan(&id)
 	if err != nil {
 		logrus.Error("failed to insert user into database, error: ", err)
 		return id, err
@@ -32,9 +32,9 @@ func (r *repo) CreateUser(userInput *models.RegisterUser) (int, error) {
 func (r *repo) GetUserById(id int) (*models.UserResponse, error) {
 	response := models.UserResponse{}
 
-	query := "SELECT name, surname, user_role, created_at, phone_number FROM users WHERE id=$1"
+	query := "SELECT name, surname, user_role,email, created_at, phone_number FROM users WHERE id=$1"
 
-	err := r.db.QueryRow(query, &id).Scan(&response.Username, &response.Surname, &response.UserRole, &response.CreatedAt, &response.PhoneNumber)
+	err := r.db.QueryRow(query, &id).Scan(&response.Username, &response.Surname, &response.UserRole, &response.Email, &response.CreatedAt, &response.PhoneNumber)
 
 	if err != nil {
 		logrus.Errorf("failed to find user with id=%d, error: %v", id, err)
@@ -47,9 +47,9 @@ func (r *repo) GetUserById(id int) (*models.UserResponse, error) {
 func (r *repo) GetUserByPhoneNumber(phoneNumber string) (*models.User, error) {
 	response := models.User{}
 
-	query := "SELECT id, name, surname, phone_number, user_role, created_at, hashed_password FROM users WHERE phone_number=$1"
+	query := "SELECT id, name, surname, phone_number, user_role,email, created_at, hashed_password FROM users WHERE phone_number=$1"
 
-	err := r.db.QueryRow(query, &phoneNumber).Scan(&response.Id, &response.Username, &response.Surname, &response.PhoneNumber, &response.UserRole, &response.CreatedAt, &response.Password)
+	err := r.db.QueryRow(query, &phoneNumber).Scan(&response.Id, &response.Username, &response.Surname, &response.PhoneNumber, &response.UserRole, &response.Email, &response.CreatedAt, &response.Password)
 	if err != nil {
 		logrus.Errorf("failed to find user with phone number=%s, error: %v", phoneNumber, err)
 		return &models.User{}, err

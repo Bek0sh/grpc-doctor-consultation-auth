@@ -58,6 +58,7 @@ func (s *service) RegisterUser(ctx context.Context, req *models.RegisterUser) (i
 		PhoneNumber: req.PhoneNumber,
 		CreatedAt:   req.CreatedAt,
 		UserRole:    req.UserRole,
+		Email:       req.Email,
 		Password:    hashedPassword,
 	}
 
